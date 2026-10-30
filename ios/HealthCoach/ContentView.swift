@@ -132,7 +132,7 @@ struct ContentView: View {
     private var reminderCard: some View {
         CardView("每日提醒") {
             VStack(spacing: 0) {
-                ForEach(Array(store.reminders.enumerated()), id: \.element.id) { index, item in
+                ForEach(store.reminders) { item in
                     HStack(spacing: 10) {
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: 6) {
@@ -148,7 +148,7 @@ struct ContentView: View {
                         }
                         Spacer(minLength: 0)
                         Toggle("", isOn: Binding(
-                            get: { store.reminders.indices.contains(index) ? store.reminders[index].enabled : false },
+                            get: { item.enabled },
                             set: { newValue in
                                 var copy = store.reminders
                                 if let i = copy.firstIndex(where: { $0.id == item.id }) {
@@ -160,7 +160,7 @@ struct ContentView: View {
                         .labelsHidden()
                     }
                     .padding(.vertical, 6)
-                    if index < store.reminders.count - 1 {
+                    if item.id != store.reminders.last?.id {
                         Divider()
                     }
                 }
