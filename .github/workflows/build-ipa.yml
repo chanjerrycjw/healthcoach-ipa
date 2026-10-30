@@ -1,0 +1,59 @@
+name: build-ipa
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install xcodegen + ldid
+        run: brew install xcodegen ldid
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Archive
+        working-directory: ios
+        run: |
+          xcodebuild clean archive \
+            -scheme HealthCoach \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/HealthCoach.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+
+      - name: Package + ad-hoc sign
+        working-directory: ios
+        run: |
+          mkdir -p build/Payload
+          cp -r build/HealthCoach.xcarchive/Products/Applications/HealthCoach.app build/Payload/
+          find build/Payload/HealthCoach.app -type f -perm -u+x | while read -r bin; do
+            if file "$bin" | grep -q 'Mach-O'; then ldid -S "$bin"; fi
+          done
+          cd build && zip -r -y ../HealthCoach.ipa Payload
+
+      - name: Upload to Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          files: ios/HealthCoach.ipa
+          body: |
+            体检督导 ipa（ad-hoc 签名，TrollStore 可直接安装）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
