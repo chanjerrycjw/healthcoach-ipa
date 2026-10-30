@@ -1,1 +1,30 @@
-aW1wb3J0IFN3aWZ0VUkKaW1wb3J0IFVJS2l0CmltcG9ydCBVc2VyTm90aWZpY2F0aW9ucwoKQG1haW4Kc3RydWN0IEhlYWx0aENvYWNoQXBwOiBBcHAgewogICAgQFN0YXRlT2JqZWN0IHByaXZhdGUgdmFyIHN0b3JlID0gU3RvcmUoKQogICAgQFVJQXBwbGljYXRpb25EZWxlZ2F0ZUFkYXB0b3IoQXBwRGVsZWdhdGUuc2VsZikgdmFyIGRlbGVnYXRlCgogICAgdmFyIGJvZHk6IHNvbWUgU2NlbmUgewogICAgICAgIFdpbmRvd0dyb3VwIHsKICAgICAgICAgICAgQ29udGVudFZpZXcoKQogICAgICAgICAgICAgICAgLmVudmlyb25tZW50T2JqZWN0KHN0b3JlKQogICAgICAgIH0KICAgIH0KfQoKZmluYWwgY2xhc3MgQXBwRGVsZWdhdGU6IE5TT2JqZWN0LCBVSUFwcGxpY2F0aW9uRGVsZWdhdGUsIFVOVXNlck5vdGlmaWNhdGlvbkNlbnRlckRlbGVnYXRlIHsKICAgIGZ1bmMgYXBwbGljYXRpb24oXyBhcHBsaWNhdGlvbjogVUlBcHBsaWNhdGlvbiwKICAgICAgICAgICAgICAgICAgICAgZGlkRmluaXNoTGF1bmNoaW5nV2l0aE9wdGlvbnMgbGF1bmNoT3B0aW9uczogW1VJQXBwbGljYXRpb24uTGF1bmNoT3B0aW9uc0tleTogQW55XT8gPSBuaWwpIC0+IEJvb2wgewogICAgICAgIFVOVXNlck5vdGlmaWNhdGlvbkNlbnRlci5jdXJyZW50KCkuZGVsZWdhdGUgPSBzZWxmCiAgICAgICAgcmV0dXJuIHRydWUKICAgIH0KCiAgICBmdW5jIHVzZXJOb3RpZmljYXRpb25DZW50ZXIoXyBjZW50ZXI6IFVOVXNlck5vdGlmaWNhdGlvbkNlbnRlciwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB3aWxsUHJlc2VudCBub3RpZmljYXRpb246IFVOTm90aWZpY2F0aW9uLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHdpdGhDb21wbGV0aW9uSGFuZGxlciBjb21wbGV0aW9uSGFuZGxlcjogQGVzY2FwaW5nIChVTk5vdGlmaWNhdGlvblByZXNlbnRhdGlvbk9wdGlvbnMpIC0+IFZvaWQpIHsKICAgICAgICBjb21wbGV0aW9uSGFuZGxlcihbLmJhbm5lciwgLnNvdW5kXSkKICAgIH0KfQo=
+import SwiftUI
+import UIKit
+import UserNotifications
+
+@main
+struct HealthCoachApp: App {
+    @StateObject private var store = Store()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(store)
+        }
+    }
+}
+
+final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        return true
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound])
+    }
+}

@@ -1,1 +1,59 @@
-bmFtZTogYnVpbGQtaXBhCgpvbjoKICBwdXNoOgogICAgYnJhbmNoZXM6IFttYWluXQogIHdvcmtmbG93X2Rpc3BhdGNoOgoKcGVybWlzc2lvbnM6CiAgY29udGVudHM6IHdyaXRlCgpqb2JzOgogIGJ1aWxkOgogICAgcnVucy1vbjogbWFjb3MtMTUKICAgIHN0ZXBzOgogICAgICAtIHVzZXM6IGFjdGlvbnMvY2hlY2tvdXRAdjQKCiAgICAgIC0gdXNlczogbWF4aW0tbG9iYW5vdi9zZXR1cC14Y29kZUB2MQogICAgICAgIHdpdGg6CiAgICAgICAgICB4Y29kZS12ZXJzaW9uOiBsYXRlc3Qtc3RhYmxlCgogICAgICAtIG5hbWU6IEluc3RhbGwgeGNvZGVnZW4gKyBsZGlkCiAgICAgICAgcnVuOiBicmV3IGluc3RhbGwgeGNvZGVnZW4gbGRpZAoKICAgICAgLSBuYW1lOiBHZW5lcmF0ZSBYY29kZSBwcm9qZWN0CiAgICAgICAgd29ya2luZy1kaXJlY3Rvcnk6IGlvcwogICAgICAgIHJ1bjogeGNvZGVnZW4gZ2VuZXJhdGUKCiAgICAgIC0gbmFtZTogQXJjaGl2ZQogICAgICAgIHdvcmtpbmctZGlyZWN0b3J5OiBpb3MKICAgICAgICBydW46IHwKICAgICAgICAgIHhjb2RlYnVpbGQgY2xlYW4gYXJjaGl2ZSBcCiAgICAgICAgICAgIC1zY2hlbWUgSGVhbHRoQ29hY2ggXAogICAgICAgICAgICAtY29uZmlndXJhdGlvbiBSZWxlYXNlIFwKICAgICAgICAgICAgLWRlc3RpbmF0aW9uICdnZW5lcmljL3BsYXRmb3JtPWlPUycgXAogICAgICAgICAgICAtYXJjaGl2ZVBhdGggYnVpbGQvSGVhbHRoQ29hY2gueGNhcmNoaXZlIFwKICAgICAgICAgICAgQ09ERV9TSUdOSU5HX0FMTE9XRUQ9Tk8gXAogICAgICAgICAgICBDT0RFX1NJR05fSURFTlRJVFk9IiIgXAogICAgICAgICAgICBDT0RFX1NJR05JTkdfUkVRVUlSRUQ9Tk8gXAogICAgICAgICAgICBBRF9IT0NfQ09ERV9TSUdOSU5HX0FMTE9XRUQ9WUVTCgogICAgICAtIG5hbWU6IFBhY2thZ2UgKyBhZC1ob2Mgc2lnbgogICAgICAgIHdvcmtpbmctZGlyZWN0b3J5OiBpb3MKICAgICAgICBydW46IHwKICAgICAgICAgIG1rZGlyIC1wIGJ1aWxkL1BheWxvYWQKICAgICAgICAgIGNwIC1yIGJ1aWxkL0hlYWx0aENvYWNoLnhjYXJjaGl2ZS9Qcm9kdWN0cy9BcHBsaWNhdGlvbnMvSGVhbHRoQ29hY2guYXBwIGJ1aWxkL1BheWxvYWQvCiAgICAgICAgICBmaW5kIGJ1aWxkL1BheWxvYWQvSGVhbHRoQ29hY2guYXBwIC10eXBlIGYgLXBlcm0gLXUreCB8IHdoaWxlIHJlYWQgLXIgYmluOyBkbwogICAgICAgICAgICBpZiBmaWxlICIkYmluIiB8IGdyZXAgLXEgJ01hY2gtTyc7IHRoZW4gbGRpZCAtUyAiJGJpbiI7IGZpCiAgICAgICAgICBkb25lCiAgICAgICAgICBjZCBidWlsZCAmJiB6aXAgLXIgLXkgLi4vSGVhbHRoQ29hY2guaXBhIFBheWxvYWQKCiAgICAgIC0gbmFtZTogVXBsb2FkIHRvIFJlbGVhc2VzCiAgICAgICAgdXNlczogc29mdHByb3BzL2FjdGlvbi1naC1yZWxlYXNlQHYyCiAgICAgICAgd2l0aDoKICAgICAgICAgIHRhZ19uYW1lOiB2JHt7IGdpdGh1Yi5ydW5fbnVtYmVyIH19CiAgICAgICAgICBmaWxlczogaW9zL0hlYWx0aENvYWNoLmlwYQogICAgICAgICAgYm9keTogfAogICAgICAgICAgICDkvZPmo4DnnaPlr7wgaXBh77yIYWQtaG9jIOetvuWQje+8jFRyb2xsU3RvcmUg5Y+v55u05o6l5a6J6KOF77yJCiAgICAgICAgZW52OgogICAgICAgICAgR0lUSFVCX1RPS0VOOiAke3sgc2VjcmV0cy5HSVRIVUJfVE9LRU4gfX0K
+name: build-ipa
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install xcodegen + ldid
+        run: brew install xcodegen ldid
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Archive
+        working-directory: ios
+        run: |
+          xcodebuild clean archive \
+            -scheme HealthCoach \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/HealthCoach.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+
+      - name: Package + ad-hoc sign
+        working-directory: ios
+        run: |
+          mkdir -p build/Payload
+          cp -r build/HealthCoach.xcarchive/Products/Applications/HealthCoach.app build/Payload/
+          find build/Payload/HealthCoach.app -type f -perm -u+x | while read -r bin; do
+            if file "$bin" | grep -q 'Mach-O'; then ldid -S "$bin"; fi
+          done
+          cd build && zip -r -y ../HealthCoach.ipa Payload
+
+      - name: Upload to Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          files: ios/HealthCoach.ipa
+          body: |
+            体检督导 ipa（ad-hoc 签名，TrollStore 可直接安装）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
