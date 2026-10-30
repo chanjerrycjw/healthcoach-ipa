@@ -1,0 +1,25 @@
+name: HealthCoach
+options:
+  bundleIdPrefix: com.local
+  deploymentTarget:
+    iOS: "15.0"
+  xcodeVersion: "16.0"
+targets:
+  HealthCoach:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: HealthCoach
+        excludes:
+          - "README.md"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.local.healthcoach
+        INFOPLIST_FILE: HealthCoach/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Manual
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
